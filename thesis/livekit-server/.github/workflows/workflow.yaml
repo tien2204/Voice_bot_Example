@@ -1,0 +1,81 @@
+name: Deploy LiveKit Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REMOTE_SCRIPT_PATH: /tmp/livekit-deploy
+    steps:
+      - name: Check for required secrets
+        run: |
+          if [ -z "$(echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '[:space:]')" ]; then echo "Error: SSH_PRIVATE_KEY secret is not set or is only whitespace." >&2; exit 1; fi
+          if [ -z "$(echo "${{ secrets.REMOTE_HOST }}" | tr -d '[:space:]')" ]; then echo "Error: REMOTE_HOST secret is not set or is only whitespace." >&2; exit 1; fi
+          if [ -z "$(echo "${{ secrets.REMOTE_USER }}" | tr -d '[:space:]')" ]; then echo "Error: REMOTE_USER secret is not set or is only whitespace." >&2; exit 1; fi
+          if [ -z "$(echo "${{ secrets.CLOUDFLARE_API_TOKEN }}" | tr -d '[:space:]')" ]; then echo "Error: CLOUDFLARE_API_TOKEN secret is not set or is only whitespace." >&2; exit 1; fi
+          if [ -z "$(echo "${{ secrets.LIVEKIT_API_KEY }}" | tr -d '[:space:]')" ]; then echo "Error: LIVEKIT_API_KEY secret is not set or is only whitespace." >&2; exit 1; fi
+          if [ -z "$(echo "${{ secrets.LIVEKIT_API_SECRET }}" | tr -d '[:space:]')" ]; then echo "Error: LIVEKIT_API_SECRET secret is not set or is only whitespace." >&2; exit 1; fi
+          echo "All required secrets are present."
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add remote host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Create remote directory and copy files
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "rm -rf ${{ env.REMOTE_SCRIPT_PATH }}"
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "mkdir -p ${{ env.REMOTE_SCRIPT_PATH }}"
+          scp -r ./ ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ env.REMOTE_SCRIPT_PATH }}
+
+      - name: Execute deployment script on remote server
+        run: |
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+            set -e
+
+            echo 'Connected to remote server: ${{ secrets.REMOTE_HOST }}'
+            
+            echo 'Navigating to deployment directory: ${{ env.REMOTE_SCRIPT_PATH }}'
+            cd ${{ env.REMOTE_SCRIPT_PATH }}
+            
+            echo 'Ensuring cert-manager namespace exists...'
+            kubectl create namespace cert-manager --dry-run=client -o yaml | kubectl apply -f -
+            
+            echo 'Creating/Updating Cloudflare API token secret...'
+            kubectl create secret generic cloudflare-api-token-secret \
+              --from-literal=api-token='${{ secrets.CLOUDFLARE_API_TOKEN }}' \
+              --namespace=cert-manager \
+              --dry-run=client -o yaml | kubectl apply -f -
+
+            echo 'Creating key-file.yaml for LiveKit API keys...'
+            echo "api_key: ${{ secrets.LIVEKIT_API_KEY }}" > ./key-file.yaml
+            echo "api_secret: ${{ secrets.LIVEKIT_API_SECRET }}" >> ./key-file.yaml
+
+            echo 'Creating/Updating LiveKit API keys secret from file...'
+            kubectl create secret generic livekit-api-keys \
+              --from-file=key-file.yaml=./key-file.yaml \
+              --namespace=default \
+              --dry-run=client -o yaml | kubectl apply -f -
+            echo "LiveKit API keys secret created/updated in namespace default."
+            rm -rf ./key-file.yaml
+            echo 'Making setup.sh executable...'
+            chmod +x ./setup.sh
+            # sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 32080
+            # sudo iptables -t nat -A PREROUTING -p tcp --dport 443 -j REDIRECT --to-port 32443
+            echo 'Running setup.sh...'
+            ./setup.sh
+        
+            echo 'Deployment script finished on remote server.'
+          "

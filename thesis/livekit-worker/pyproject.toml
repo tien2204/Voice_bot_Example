@@ -1,0 +1,29 @@
+[project]
+name = "voicebot"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Darejk",email = "nguyendaian1945@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.10,<4.0"
+dependencies = [
+    "livekit-agents[google,openai,silero] (>=1.0.19,<2.0.0)",
+    "python-dotenv (>=1.1.0,<2.0.0)",
+    "livekit-plugins-turn-detector (>=1.0.19,<2.0.0)",
+    "piper-tts (>=1.2.0,<2.0.0)",
+    "faster-whisper (>=1.1.1,<2.0.0)",
+    "f5-tts (>=1.1.4,<2.0.0)",
+    "cached-path (>=1.7.3,<2.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu118"
+priority = "explicit"
+

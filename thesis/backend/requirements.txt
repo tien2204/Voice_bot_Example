@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic[email]
+pymongo
+passlib[bcrypt]
+python-jose[cryptography]
+python-dotenv
+uvicorn
+mailjet_rest

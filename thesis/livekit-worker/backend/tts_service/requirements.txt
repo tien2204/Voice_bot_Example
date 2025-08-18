@@ -1,0 +1,11 @@
+litserve
+torch # Specify version if needed, e.g., torch==2.0.0+cpu for CPU
+piper-tts
+pydantic
+cached_path
+livekit
+numpy<2
+fastapi
+uvicorn
+pyzmq
+# onnxruntime or onnxruntime-gpu if specific version needed

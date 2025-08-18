@@ -1,0 +1,13 @@
+python-dotenv
+livekit-agents
+livekit
+httpx
+requests
+cached_path
+pydantic
+scipy
+livekit-plugins-silero
+weaviate-client
+pandas
+duckdb
+unidecode

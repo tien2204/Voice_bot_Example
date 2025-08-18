@@ -1,0 +1,14 @@
+vietnam_number
+pydub
+git+https://github.com/CodeLinkIO/Vietnamese-text-normalization.git@main
+cached_path
+livekit-agents[google,openai,silero]<2
+python-dotenv
+piper-tts
+torchaudio
+denoiser
+transformers
+numpy<2
+unidecode
+# duckdb
+# weaviate

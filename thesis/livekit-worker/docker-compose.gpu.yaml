@@ -1,0 +1,70 @@
+services:
+  tts_service:
+    build:
+      context: ./backend/tts_service
+    ports:
+      - "${TTS_SERVICE_PORT_HOST}:${TTS_SERVICE_PORT_INTERNAL}"
+    environment:
+      - PORT=${TTS_SERVICE_PORT_INTERNAL}
+      - XDG_CACHE_HOME=/app/.cache 
+    volumes:
+      - piper_cache:/app/.cache/cached_path 
+    networks:
+      - app_network
+    deploy: 
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1 
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  stt_service:
+    build:
+      context: ./backend/stt_service
+    ports:
+      - "${STT_SERVICE_PORT_HOST}:${STT_SERVICE_PORT_INTERNAL}"
+    environment:
+      - PORT=${STT_SERVICE_PORT_INTERNAL}
+      - XDG_CACHE_HOME=/app/.cache 
+      - HF_HOME=/app/.cache/hf_cache 
+      - TORCH_HOME=/app/.cache/torch_cache 
+    volumes:
+      - whisper_hf_cache:/app/.cache/hf_cache
+      - whisper_torch_cache:/app/.cache/torch_cache
+    networks:
+      - app_network
+    deploy: 
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  main_api_service:
+    build:
+      context: ./backend/main_api_service
+    ports:
+      - "${MAIN_API_SERVICE_PORT_HOST}:${MAIN_API_SERVICE_PORT_INTERNAL}"
+    environment:
+      - PIPER_TTS_API_URL=http://tts_service:${TTS_SERVICE_PORT_INTERNAL}/predict
+      - FASTERWHISPER_API_URL=http://stt_service:${STT_SERVICE_PORT_INTERNAL}/predict
+      - PORT=${MAIN_API_SERVICE_PORT_INTERNAL}
+    depends_on:
+      - tts_service
+      - stt_service
+    networks:
+      - app_network
+    restart: unless-stopped
+
+volumes:
+  piper_cache:
+  whisper_hf_cache:
+  whisper_torch_cache:
+
+networks:
+  app_network:
+    driver: bridge

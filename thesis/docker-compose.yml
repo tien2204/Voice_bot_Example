@@ -1,0 +1,50 @@
+services:
+  weaviate:
+    command:
+      - --host
+      - 0.0.0.0
+      - --port
+      - "9087"
+      - --scheme
+      - http
+    image: semitechnologies/weaviate:1.23.9
+    ports:
+      - 9086:9087
+      # - 50051:50051
+    volumes:
+      - ./common/weaviate:/var/lib/weaviate
+    restart: unless-stopped
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: "true"
+      PERSISTENCE_DATA_PATH: "/var/lib/weaviate"
+      DEFAULT_VECTORIZER_MODULE: "none"
+      ENABLE_MODULES: ""
+      CLUSTER_HOSTNAME: "node1"
+      LIMIT_RESOURCES: "true"
+      DISK_USE_READONLY_PERCENTAGE: 95
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - 9086:9087
+  mongo:
+    image: mongo:7.0  # Or your preferred version
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - ./common/mongo_data:/data/db
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_BASICAUTH: false

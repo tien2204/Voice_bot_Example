@@ -1,0 +1,9 @@
+/_test
+/data
+*.duckdb
+/duckdb_tmp
+/common
+__pycache__
+*.env*
+*.log*
+/indexing_dt

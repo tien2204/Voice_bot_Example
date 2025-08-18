@@ -1,0 +1,10 @@
+litserve
+faster-whisper
+pydantic
+torch # Specify version
+torchaudio # Specify version compatible with torch
+numpy<2
+fastapi
+uvicorn
+pyzmq
+# onnxruntime or onnxruntime-gpu if specific version needed
