@@ -4,7 +4,7 @@
 import torch
 import torchaudio
 import numpy as np
-from typing import Optional, Union, Dict, Any
+from typing import Optional, Union, Dict, Any, List
 from pathlib import Path
 import warnings
 import re
