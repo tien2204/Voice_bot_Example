@@ -61,7 +61,7 @@ psutil
 GPUtil
 
 # Hashing and crypto
-hashlib2
+# hashlib2
 
 # Configuration management
 pyyaml
@@ -79,6 +79,8 @@ python-dotenv
 scikit-learn
 matplotlib
 seaborn
+jieba
+torchaudio
 
 # Memory optimization
 memory-profiler
