@@ -1,0 +1,84 @@
+# Core ML and NLP
+torch
+transformers
+datasets
+accelerate
+bitsandbytes
+
+# LangChain ecosystem
+langchain
+langchain-community
+langchain-core
+
+# Vector search and embeddings
+sentence-transformers
+FlagEmbedding
+faiss-cpu
+rank-bm25
+
+# Weaviate vector database
+weaviate-client
+
+# Audio processing and TTS
+soundfile
+librosa
+pydub
+edge-tts
+pyttsx3
+
+# Web scraping and HTTP
+requests
+beautifulsoup4
+
+# Data processing
+numpy
+pandas
+scipy
+
+# JSON and file handling
+jsonlines
+pathlib2
+
+# Time and datetime
+python-dateutil
+
+# Progress bars and CLI
+tqdm
+click
+
+# Development and testing
+pytest
+pytest-asyncio
+black
+flake8
+
+# Optional: Jupyter for development
+jupyter
+ipywidgets
+
+# System utilities
+psutil
+GPUtil
+
+# Hashing and crypto
+hashlib2
+
+# Configuration management
+pyyaml
+python-dotenv
+
+# Monitoring and logging (optional)
+# elasticsearch
+# prometheus-client
+
+# Vietnamese text processing (optional)
+# underthesea
+# pyvi
+
+# Additional ML utilities
+scikit-learn
+matplotlib
+seaborn
+
+# Memory optimization
+memory-profiler

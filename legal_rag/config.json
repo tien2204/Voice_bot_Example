@@ -1,0 +1,110 @@
+{
+  "dataset": {
+    "name": "YuITC/Vietnamese-Legal-Doc-Retrieval-Data",
+    "max_documents": 1000,
+    "chunk_size": 512,
+    "chunk_overlap": 100
+  },
+  
+  "embedding": {
+    "model": "BAAI/bge-m3",
+    "normalize": true,
+    "batch_size": 32
+  },
+  
+  "retrieval": {
+    "k": 5,
+    "bm25_weight": 0.3,
+    "vector_weight": 0.7,
+    "hybrid_strategy": "weighted_fusion"
+  },
+  
+  "llm": {
+    "model": "vilm/vinallama-2.7b-chat",
+    "max_length": 2048,
+    "quantization": {
+      "load_in_4bit": true,
+      "bnb_4bit_compute_dtype": "float16",
+      "bnb_4bit_use_double_quant": true,
+      "bnb_4bit_quant_type": "nf4"
+    },
+    "generation": {
+      "max_new_tokens": 512,
+      "temperature": 0.3,
+      "top_p": 0.9,
+      "repetition_penalty": 1.15,
+      "do_sample": true
+    }
+  },
+  
+  "tts": {
+    "model": "hynt/F5-TTS-Vietnamese-ViVoice",
+    "sample_rate": 24000,
+    "cache_enabled": true,
+    "cache_dir": "tts_cache",
+    "max_cache_files": 100
+  },
+  
+  "vector_store": {
+    "type": "weaviate",
+    "weaviate_url": "http://localhost:8080",
+    "fallback_to_simple": true,
+    "batch_size": 100
+  },
+  
+  "mcp_tools": {
+    "meta_reasoning": {
+      "enabled": true,
+      "debug_mode": true
+    },
+    "logging": {
+      "enabled": true,
+      "log_file": "logs/session.jsonl",
+      "metrics_file": "logs/metrics.jsonl",
+      "analytics_file": "logs/analytics.json"
+    },
+    "memory": {
+      "enabled": true,
+      "max_messages": 50,
+      "context_window": 10,
+      "memory_file": "memory/session_memory.json"
+    },
+    "hybrid_sources": {
+      "enabled": true,
+      "cache_duration_hours": 6,
+      "news_sources": [
+        "phap_luat_vn",
+        "thanh_nien_phap_luat", 
+        "vnexpress_phap_luat"
+      ]
+    },
+    "tts_tool": {
+      "enabled": true,
+      "use_cache": true,
+      "legal_voice_settings": {
+        "speed_rate": 0.9,
+        "pause_between_articles": true
+      }
+    },
+    "feedback": {
+      "enabled": true,
+      "feedback_file": "logs/feedback.jsonl",
+      "analytics_file": "logs/feedback_analytics.json",
+      "auto_analysis_interval": 10
+    }
+  },
+  
+  "system": {
+    "debug_mode": false,
+    "log_level": "INFO",
+    "max_workers": 4,
+    "timeout_seconds": 30
+  },
+  
+  "ui": {
+    "default_mode": "interactive",
+    "show_mcp_tools": true,
+    "auto_audio": false,
+    "feedback_prompt": true
+  }
+}
